@@ -1,5 +1,5 @@
 public class VFTestController {
-    public Map<id,AccountWithContactsWrapper> accountWithContactsWrapperMap;
+    public Map<Id,AccountWithContactsWrapper> accountWithContactsWrapperMap;
     public Contact newContact  {get; set;}
     public Map<String,Boolean> accountFieldsAccess  {get; set;}
     public Map<String,Boolean> contactFieldsAccessMap  {get; set;}
@@ -37,10 +37,10 @@ public class VFTestController {
     private void setWrapMapForAccount(){
         if(accountWithContactsWrapperMap == null){
             Account[] accounts = Database.query(soqlForAccounts);
-            Map<id,AccountWithContactsWrapper> wrapAccounts = new Map<id,AccountWithContactsWrapper>();
+            Map<Id,AccountWithContactsWrapper> wrapAccounts = new Map<Id,AccountWithContactsWrapper>();
             for(Account account:accounts){
                 AccountWithContactsWrapper accountWithContacts=new AccountWithContactsWrapper(account,account.Contacts);
-                wrapAccounts.put(account.id,accountWithContacts);
+                wrapAccounts.put(account.Id,accountWithContacts);
             }
             accountWithContactsWrapperMap=wrapAccounts;
         }
@@ -50,7 +50,7 @@ public class VFTestController {
         try{
             newContact.accountId = accountIdForNewContact;
             insert newContact;
-            accountWithContactsWrapperMap.get(accountIdForNewContact).accountContact.put(newContact.id,newContact);
+            accountWithContactsWrapperMap.get(accountIdForNewContact).accountContact.put(newContact.Id,newContact);
             displayNewContactPopup = false; 
         }catch(dmlexception e){
             ApexPages.addmessage(new ApexPages.message(ApexPages.severity.ERROR,'Some Error'));
@@ -60,14 +60,14 @@ public class VFTestController {
     public void editExistsContact(){
         try{
             update newContact;
-            accountWithContactsWrapperMap.get(accountIdForNewContact).accountContact.put(newContact.id,newContact);
+            accountWithContactsWrapperMap.get(accountIdForNewContact).accountContact.put(newContact.Id,newContact);
             displayEditPopup = false;
         }catch(dmlexception e){
             ApexPages.addmessage(new ApexPages.message(ApexPages.severity.ERROR,'Some Error'));
         }
     }
     
-    public Map<id,AccountWithContactsWrapper> getAccounts(){
+    public Map<Id,AccountWithContactsWrapper> getAccounts(){
         return accountWithContactsWrapperMap;
     }
 
@@ -95,11 +95,11 @@ public class VFTestController {
     public class AccountWithContactsWrapper{
         public Account account {get; set;}
         public Map<Id,Contact> accountContact {get; set;}
-        public Set<id> contactToDelete = new Set<Id>();
+        public Set<Id> contactToDelete = new Set<Id>();
         public Boolean rerenderDeleteContactButton  {get; set;}
         public AccountWithContactsWrapper(Account account,Contact[] contacts){
             this.account = account;
-            accountContact = new Map<id,Contact>(contacts);
+            accountContact = new Map<Id,Contact>(contacts);
             if(accountContact.size() > 0){
                 rerenderDeleteContactButton = true;
             }else{
@@ -113,7 +113,7 @@ public class VFTestController {
         Id[] contactIdForDeleteList = new List<Id>();
         contactIdForDeleteList.addAll(accountWithContactsWrapperMap.get(accountId).contactToDelete);
         Database.delete(contactIdForDeleteList, true);
-        for(id contactId: accountWithContactsWrapperMap.get(accountId).contactToDelete){
+        for(Id contactId: accountWithContactsWrapperMap.get(accountId).contactToDelete){
             accountWithContactsWrapperMap.get(accountId).accountContact.remove(contactId);
         }
     }
