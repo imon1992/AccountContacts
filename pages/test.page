@@ -1,0 +1,116 @@
+<apex:page lightningStylesheets="true" controller="VFTestController">
+    <apex:slds />
+    <apex:pageMessages id="showmsg"></apex:pageMessages>
+    <apex:pageBlock >
+        <apex:pageBlockTable value="{!accounts}" var="account" id="pb">
+            <apex:column value="{!accounts[account].account.Name}" rendered="{!accountFieldsAccess['Name']}"/>
+            <apex:column value="{!accounts[account].account.Phone}" rendered="{!accountFieldsAccess['Phone']}"/>
+            <apex:column rendered="{!accountFieldsAccess['Contact']}">
+                <apex:repeat value="{!accounts[account].accountContact}" var="contact" >
+                    
+                    <apex:facet name="header">Owner</apex:facet>
+                    <apex:facet name="footer">column footer</apex:facet>
+                    <apex:outputText value="{!accounts[account].accountContact[contact].firstName}"
+                                     rendered="{!contactFieldsAccessMap['FirstName']}"/>
+                    <apex:outputText value="{!accounts[account].accountContact[contact].lastName}"
+                                     rendered="{!contactFieldsAccessMap['LastName']}"/>
+                    <apex:outputText value="{!accounts[account].accountContact[contact].Department}"
+                                     rendered="{!contactFieldsAccessMap['Department']}"/>
+                    <apex:form >
+                        <apex:inputCheckbox rendered="{!aviliableActionMap['isDeletable']}">
+                            <apex:actionSupport event="onchange" action="{!addIdFofDelete}" rerender="false">
+                                <apex:param name="contactId" value="{!accounts[account].accountContact[contact].Id}"/>  
+                                <apex:param name="accountId" value="{!accounts[account].account.Id}"/>   
+                            </apex:actionSupport>
+                        </apex:inputCheckbox>
+                        
+                        <apex:commandButton value="edit" action="{!showEditPopup}" rerender="editPopup" rendered="{!aviliableActionMap['isCreateable']}">
+                            <apex:param name="accountId" value="{!accounts[account].account.id}"/>  
+                            <apex:param name="contactId" value="{!accounts[account].accountContact[contact].Id}"/> 
+                        </apex:commandButton>
+                        
+                    </apex:form>
+                </apex:repeat>  
+                <apex:form >
+                    <apex:commandButton value="delete" action="{!deleteContacts}" rendered="{!accounts[account].rerenderDeleteContactButton && aviliableActionMap['isDeletable']}"  rerender="pb">
+                        <apex:param name="accountId" value="{!accounts[account].account.id}"/>  
+                    </apex:commandButton>
+                    <apex:commandButton value="new" action="{!showNewAccountPopup}" rerender="newAccountPopup" rendered="{!aviliableActionMap['isUpdateable']}">
+                        <apex:param name="accountId" value="{!accounts[account].account.id}"/>  
+                    </apex:commandButton>
+                </apex:form>
+            </apex:column>
+        </apex:pageBlockTable>
+    </apex:pageBlock>
+    
+    <apex:outputPanel id="editPopup">
+        <apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayEditPopup}"/>
+        <apex:outputPanel styleClass="custPopup" layout="block" rendered="{!displayEditPopup}">
+            <apex:sectionHeader title="Visualforce Example" subtitle="Create an Account"/>
+            
+            <apex:form >
+                <apex:pageMessages />
+                <apex:pageBlock title="Account Info">
+                    
+                    <apex:pageBlockButtons >
+                    </apex:pageBlockButtons>
+                    
+                    <apex:pageBlockSection showHeader="false" columns="2">
+                        <apex:inputField value="{!newContact.FirstName}"/><br/>
+                        <apex:inputField value="{!newContact.LastName}" />
+                    </apex:pageBlockSection>
+                    <apex:commandButton value="Close" action="{!closeEditPopup}" rerender="editPopup"/>
+                    <apex:commandButton value="Save" action="{!editExistsContact}"  />
+                </apex:pageBlock>
+            </apex:form>
+        </apex:outputPanel>
+    </apex:outputPanel>
+    
+    <apex:outputPanel id="newAccountPopup" >
+        <apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayNewContactPopup}"/>
+        <apex:outputPanel styleClass="custPopup" layout="block" rendered="{!displayNewContactPopup}">
+            <apex:sectionHeader title="Visualforce Example" subtitle="Create an Account"/>
+            
+            <apex:form >
+                <apex:pageBlock title="Account Info">                                
+                    <apex:pageBlockSection columns="2">
+                        <apex:inputField value="{!newContact.FirstName}"/><br/>
+                        <apex:inputField value="{!newContact.LastName}"/>
+                    </apex:pageBlockSection>
+                    
+                    <apex:commandButton value="Close" action="{!closeNewAccountPopup}" rerender="newAccountPopup"/>
+                    <apex:commandButton value="Save" action="{!createNewContact}" rerender="newAccountPopup,pb" />
+                </apex:pageBlock>
+            </apex:form>
+            
+            <apex:form >
+            </apex:form>
+        </apex:outputPanel>
+    </apex:outputPanel>
+    <style type="text/css">
+        .custPopup{
+        background-color: white;
+        border-width: 2px;
+        border-style: solid;
+        z-index: 9999;
+        left: 50%;
+        padding:10px;
+        position: fixed;
+        width: 500px;
+        margin-left: -250px;
+        top:100px;
+        }
+        .popupBackground{
+        background-color:black;
+        opacity: 0.20;
+        filter: alpha(opacity = 20);
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 9998;
+        }
+        
+    </style>
+</apex:page>
